@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.CodeAnalysis.Options;
 
 namespace TodoApi
 {
@@ -31,7 +32,7 @@ namespace TodoApi
 
             services.AddDbContext<TodoContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("TodoContext")));
-            
+
             services.AddSwaggerGen(action =>
             {
                 action.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
@@ -45,6 +46,13 @@ namespace TodoApi
                     }
                 });
             });
+
+            services.AddCors(options => options.AddPolicy("AllowUI", builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +71,7 @@ namespace TodoApi
 
             app.UseRouting();
 
+            app.UseCors("AllowUI");
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
